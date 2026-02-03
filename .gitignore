@@ -1,0 +1,191 @@
+# ================================================================================
+# gradWork .gitignore
+# ================================================================================
+
+# ================================================================================
+# SENSITIVE / PRIVATE
+# ================================================================================
+
+# LLM development logs and instructions (contains project-specific details)
+/llm/
+
+# Environment variables (CRITICAL - contains secrets)
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+*.env
+.env*.local
+
+# ================================================================================
+# DEPENDENCIES
+# ================================================================================
+
+node_modules/
+*/node_modules/
+.pnp
+.pnp.js
+
+# ================================================================================
+# BUILD OUTPUTS
+# ================================================================================
+
+# Next.js
+frontend/.next/
+frontend/out/
+frontend/build/
+
+# NestJS
+backend/dist/
+backend/build/
+
+# General
+*.tsbuildinfo
+next-env.d.ts
+
+# ================================================================================
+# PRISMA
+# ================================================================================
+
+# Generated Prisma client (regenerated on npm install)
+backend/node_modules/.prisma/
+
+# SQLite (if used locally)
+*.db
+*.sqlite
+*.sqlite3
+
+# ================================================================================
+# TESTING
+# ================================================================================
+
+coverage/
+*.lcov
+.nyc_output/
+
+# ================================================================================
+# DEBUG & LOGS
+# ================================================================================
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.log
+
+# ================================================================================
+# IDE & EDITORS
+# ================================================================================
+
+# VSCode
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# JetBrains (WebStorm, IntelliJ)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# ================================================================================
+# OS GENERATED
+# ================================================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ================================================================================
+# MISC
+# ================================================================================
+
+# Vercel
+.vercel
+
+# Turborepo
+.turbo
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Yarn
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Certificates and keys (NEVER commit these)
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Secrets
+secrets/
+*.secret
+
+# Docker (if used later)
+docker-compose.override.yml
+
+# ================================================================================
+# SUPABASE (if using local development)
+# ================================================================================
+
+.supabase/
+supabase/.temp/

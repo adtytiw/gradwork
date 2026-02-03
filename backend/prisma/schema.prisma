@@ -1,0 +1,95 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// User profile mirroring Supabase auth.users
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  role      Role     @default(STUDENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  studentProfile StudentProfile?
+  companyProfile CompanyProfile?
+}
+
+enum Role {
+  STUDENT
+  COMPANY
+  ADMIN
+}
+
+model StudentProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  firstName String
+  lastName  String
+  resumeUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  applications Application[]
+}
+
+model CompanyProfile {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id])
+  companyName String
+  logoUrl     String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  jobs Job[]
+}
+
+model Job {
+  id          String   @id @default(uuid())
+  companyId   String
+  company     CompanyProfile @relation(fields: [companyId], references: [id])
+  title       String
+  description String
+  location    String?
+  type        JobType
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  applications Application[]
+}
+
+enum JobType {
+  INTERNSHIP
+  FULL_TIME
+  PART_TIME
+}
+
+model Application {
+  id        String            @id @default(uuid())
+  jobId     String
+  job       Job               @relation(fields: [jobId], references: [id])
+  studentId String
+  student   StudentProfile    @relation(fields: [studentId], references: [id])
+  status    ApplicationStatus @default(PENDING)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  
+  @@unique([jobId, studentId])
+}
+
+enum ApplicationStatus {
+  PENDING
+  REVIEWING
+  ACCEPTED
+  REJECTED
+}
