@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { apiClient } from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 
 type Job = {
   id: string;
@@ -46,7 +46,7 @@ export default function CompanyJobsPage() {
   if (isLoading) {
     return (
       <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -61,48 +61,48 @@ export default function CompanyJobsPage() {
       </div>
 
       {!jobs?.length ? (
-        <div className="text-center py-12 bg-white rounded-xl">
-          <p className="text-gray-500 mb-4">You haven&apos;t posted any jobs yet.</p>
+        <div className="text-center py-12 bg-card rounded-xl border">
+          <p className="text-muted-foreground mb-4">You haven&apos;t posted any jobs yet.</p>
           <Link href="/company/jobs/new">
             <Button>Post Your First Job</Button>
           </Link>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-card rounded-xl shadow-sm border overflow-hidden">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-muted border-b">
               <tr>
-                <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">
+                <th className="text-left px-6 py-3 text-sm font-medium text-muted-foreground">
                   Job Title
                 </th>
-                <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">
+                <th className="text-left px-6 py-3 text-sm font-medium text-muted-foreground">
                   Type
                 </th>
-                <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">
+                <th className="text-left px-6 py-3 text-sm font-medium text-muted-foreground">
                   Applications
                 </th>
-                <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">
+                <th className="text-left px-6 py-3 text-sm font-medium text-muted-foreground">
                   Status
                 </th>
-                <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">
+                <th className="text-left px-6 py-3 text-sm font-medium text-muted-foreground">
                   Actions
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {jobs.map((job) => (
-                <tr key={job.id} className="hover:bg-gray-50">
+                <tr key={job.id} className="hover:bg-muted/50">
                   <td className="px-6 py-4">
-                    <div className="font-medium text-gray-900">{job.title}</div>
+                    <div className="font-medium">{job.title}</div>
                     {job.location && (
-                      <div className="text-sm text-gray-500">📍 {job.location}</div>
+                      <div className="text-sm text-muted-foreground">📍 {job.location}</div>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{job.type}</td>
+                  <td className="px-6 py-4 text-sm text-muted-foreground">{job.type}</td>
                   <td className="px-6 py-4">
                     <Link
                       href={`/company/applications?jobId=${job.id}`}
-                      className="text-blue-600 hover:underline"
+                      className="text-primary hover:underline"
                     >
                       {job._count.applications} applicants
                     </Link>
@@ -111,22 +111,23 @@ export default function CompanyJobsPage() {
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-medium ${
                         job.isActive
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-gray-100 text-gray-600'
+                          ? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400'
+                          : 'bg-muted text-muted-foreground'
                       }`}
                     >
                       {job.isActive ? 'Active' : 'Closed'}
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <button
+                    <Button
+                      variant="link"
                       onClick={() =>
                         toggleMutation.mutate({ id: job.id, isActive: job.isActive })
                       }
-                      className="text-sm text-blue-600 hover:underline"
+                      className="p-0 h-auto"
                     >
                       {job.isActive ? 'Close' : 'Reopen'}
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))}
