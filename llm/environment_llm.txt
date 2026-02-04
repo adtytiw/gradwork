@@ -1,0 +1,231 @@
+PROJECT: gradWork
+PURPOSE: Undergraduate job & internship platform
+OS TARGET: Arch Linux / EndeavourOS (x86_64)
+ARCHITECTURE: Next.js (FE) + NestJS (BE) + Supabase (Auth, DB, Storage)
+PRIORITY: Free-tier, reproducible, production-aligned
+
+==================================================
+1. SYSTEM REQUIREMENTS (HOST MACHINE)
+==================================================
+
+Operating System:
+- Arch Linux or Arch-based (EndeavourOS)
+- Kernel >= 6.x
+
+User:
+- Non-root user with sudo access
+- Do NOT run npm as root
+
+Shell:
+- fish
+
+Core packages (install via pacman):
+- base-devel
+- git
+- curl
+- wget
+- unzip
+- docker
+- docker-compose
+- openssl
+
+Docker:
+- Required for local backend testing & parity with production
+- Docker daemon must be enabled and running
+
+==================================================
+2. NODE.JS ENVIRONMENT (MANDATORY)
+==================================================
+
+Node Version Manager:
+- Use nvm (NOT system node for development)
+
+Reason:
+- Avoids permission issues
+- Allows version pinning
+- Matches production expectations
+
+Install nvm:
+- Source: https://github.com/nvm-sh/nvm
+
+Target Node.js version:
+- Node.js LTS (>= 20.x, < 22)
+- npm comes bundled with node
+
+Rules:
+- Do NOT use `sudo npm`
+- All global npm packages are user-scoped via nvm
+
+==================================================
+3. FRONTEND ENVIRONMENT (NEXT.JS)
+==================================================
+
+Framework:
+- Next.js 14
+- App Router enabled
+
+Language:
+- TypeScript (strict mode ON)
+
+Styling:
+- Tailwind CSS
+
+State management:
+- TanStack Query (React Query)
+
+Forms & validation:
+- React Hook Form
+- Zod (frontend validation)
+
+Auth:
+- Supabase Auth SDK (frontend only for login/logout)
+
+Frontend responsibilities:
+- UI rendering
+- Auth initiation (OAuth, email)
+- Token forwarding to backend
+- No business logic
+- No direct DB writes
+
+Environment variables (frontend):
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_ANON_KEY
+- NEXT_PUBLIC_API_BASE_URL
+
+==================================================
+4. BACKEND ENVIRONMENT (NESTJS)
+==================================================
+
+Framework:
+- NestJS (latest stable)
+
+Language:
+- TypeScript
+
+Architecture:
+- Modular (auth, users, jobs, applications, etc.)
+
+Responsibilities:
+- JWT verification
+- Role-based access control
+- Business logic
+- Data validation
+- API contract enforcement
+
+Auth:
+- Supabase Auth as Identity Provider
+- Backend verifies Supabase-issued JWT
+- Backend NEVER handles passwords
+
+Validation:
+- class-validator
+- class-transformer
+
+Security:
+- Helmet
+- Rate limiting
+- CORS configured for frontend domain
+
+Environment variables (backend):
+- DATABASE_URL (Supabase Postgres)
+- SUPABASE_PROJECT_URL
+- SUPABASE_JWT_PUBLIC_KEY
+- SUPABASE_SERVICE_ROLE_KEY (server-only, NEVER exposed)
+- NODE_ENV
+
+==================================================
+5. DATABASE & ORM
+==================================================
+
+Database:
+- Supabase-managed PostgreSQL
+
+ORM:
+- Prisma
+
+Rules (CRITICAL):
+- Prisma owns schema & migrations
+- Supabase SQL editor is NOT used for schema changes
+- Supabase Auth tables are read-only
+
+Prisma workflow:
+- prisma schema defines all app tables
+- prisma migrate deploy for production
+- prisma migrate dev for local
+
+Auth data:
+- Stored in supabase auth.users
+- App mirrors user IDs via users table
+
+==================================================
+6. STORAGE
+==================================================
+
+Provider:
+- Supabase Storage
+
+Usage:
+- Student resumes (PDF)
+- Company logos
+
+Rules:
+- Private buckets
+- Signed URLs only
+- Upload/download mediated by backend
+
+==================================================
+7. LOCAL DEVELOPMENT SETUP
+==================================================
+
+Frontend:
+- Runs on http://localhost:3000
+
+Backend:
+- Runs on http://localhost:4000
+
+Database:
+- Supabase remote DB (free tier)
+- Optional local Postgres only for testing
+
+Networking:
+- Frontend talks ONLY to backend
+- Backend talks to Supabase
+
+==================================================
+8. DEPLOYMENT TARGETS (FREE TIER)
+==================================================
+
+Frontend:
+- Vercel (free tier)
+
+Backend:
+- Fly.io or Railway (free tier)
+- Docker-based deployment
+
+Database & Auth:
+- Supabase free tier
+
+==================================================
+9. EXPLICIT NON-GOALS (V1)
+==================================================
+
+- No microservices
+- No Redis
+- No GraphQL
+- No WebSockets
+- No AI matching
+- No Supabase RLS-heavy logic
+- No direct frontend DB access
+
+==================================================
+10. GUIDING PRINCIPLES
+==================================================
+
+- Backend is the source of truth
+- Supabase is infrastructure, not business logic
+- Auth ≠ Authorization
+- Free-tier friendly
+- Simple > clever
+- Finish MVP before optimizing
+
+END OF ENVIRONMENT SPEC

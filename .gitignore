@@ -7,7 +7,7 @@
 # ================================================================================
 
 # LLM development logs and instructions (contains project-specific details)
-/llm/
+
 
 # Environment variables (CRITICAL - contains secrets)
 .env

@@ -1,0 +1,243 @@
+# LLM Handoff Instructions - gradWork Project
+# Last Updated: 2026-02-04
+# Version: 0.1
+
+================================================================================
+PROJECT OVERVIEW
+================================================================================
+
+gradWork is a job platform for undergraduate students to find internships and 
+entry-level positions. Companies can post jobs and review applications.
+
+Two user roles:
+- STUDENT: Browse jobs, apply, track applications
+- COMPANY: Post jobs, review applications, accept/reject candidates
+
+================================================================================
+CURRENT STATE (v0.1)
+================================================================================
+
+WORKING:
+✓ Landing page (modern dark Vercel/Next.js style)
+✓ User registration (Supabase Auth, email confirmation disabled)
+✓ User login
+✓ JWT verification (using JWKS - asymmetric keys, NOT legacy secret)
+✓ Profile completion flow (after first login)
+✓ Dashboard routing (role-based)
+✓ Sign out
+
+NOT YET TESTED/IMPLEMENTED:
+- Job CRUD (backend ready, frontend pages exist but untested)
+- Applications flow (backend ready, frontend pages exist but untested)
+- Resume upload (Supabase Storage)
+- Profile editing
+- Search/filters
+
+================================================================================
+TECH STACK
+================================================================================
+
+FRONTEND (port 3000):
+- Next.js 14.2.35 (App Router)
+- TypeScript
+- Tailwind CSS
+- Supabase JS Client (auth)
+- TanStack Query (not heavily used yet)
+- React Hook Form + Zod (available but not heavily used)
+
+BACKEND (port 4000):
+- NestJS 10
+- Prisma 7.3.0 (with @prisma/adapter-pg for Prisma 7 compatibility)
+- PostgreSQL (Supabase hosted)
+- Passport JWT with jwks-rsa (JWKS verification)
+- class-validator for DTOs
+
+INFRASTRUCTURE:
+- Supabase Project ID: wqnhcogwvfpswngzbhee
+- Supabase URL: https://wqnhcogwvfpswngzbhee.supabase.co
+- Database: Supabase PostgreSQL
+
+================================================================================
+IMPORTANT TECHNICAL DECISIONS
+================================================================================
+
+1. JWT VERIFICATION
+   - Supabase uses ECC (P-256) keys, NOT the legacy HS256 secret
+   - Backend uses jwks-rsa to fetch public keys from:
+     ${SUPABASE_PROJECT_URL}/auth/v1/.well-known/jwks.json
+   - See: backend/src/auth/jwt.strategy.ts
+
+2. PRISMA 7 CHANGES
+   - DATABASE_URL is now in prisma/prisma.config.ts, NOT schema.prisma
+   - Uses @prisma/adapter-pg with pg Pool
+   - See: backend/src/prisma/prisma.service.ts
+
+3. AUTH FLOW
+   - Frontend: Supabase Auth handles signup/login
+   - On signup, user metadata (role, name) stored in Supabase
+   - After auth, frontend calls POST /auth/register to create backend profile
+   - If profile doesn't exist, user redirected to /complete-profile
+   - Backend verifies JWT via JWKS, extracts user ID from 'sub' claim
+
+4. EMAIL CONFIRMATION
+   - DISABLED in Supabase dashboard for development
+   - Location: Authentication → Providers → Email → "Confirm email" toggle OFF
+
+5. STYLING
+   - Dark theme (black background, zinc grays)
+   - Gradient accents (violet-500 to cyan-500)
+   - Vercel/Next.js inspired design
+
+================================================================================
+FILE STRUCTURE (KEY FILES)
+================================================================================
+
+FRONTEND:
+/frontend/src/
+├── app/
+│   ├── page.tsx                    # Landing page
+│   ├── (auth)/
+│   │   ├── login/page.tsx          # Login form
+│   │   ├── register/page.tsx       # Register form
+│   │   ├── complete-profile/page.tsx # Profile completion
+│   │   └── auth/callback/page.tsx  # OAuth callback (email verify)
+│   └── (dashboard)/
+│       ├── layout.tsx              # Protected layout with sidebar
+│       ├── dashboard/page.tsx      # Main dashboard
+│       ├── jobs/                   # Job pages
+│       ├── applications/           # Application pages
+│       └── profile/                # Profile page
+├── components/
+│   ├── Sidebar.tsx                 # Dashboard sidebar
+│   └── ui/                         # Reusable components
+├── hooks/
+│   └── useAuth.tsx                 # Auth context provider
+└── lib/
+    ├── api.ts                      # API client with token handling
+    └── supabase.ts                 # Supabase client
+
+BACKEND:
+/backend/src/
+├── main.ts                         # App entry, CORS config
+├── auth/
+│   ├── auth.module.ts
+│   ├── auth.controller.ts          # POST /auth/register, GET /auth/me
+│   ├── auth.service.ts             # Creates user + profile in DB
+│   ├── jwt.strategy.ts             # JWKS verification (IMPORTANT)
+│   ├── jwt-auth.guard.ts
+│   └── current-user.decorator.ts
+├── users/
+│   ├── users.controller.ts         # GET/PATCH /users/profile
+│   └── users.service.ts
+├── jobs/
+│   ├── jobs.controller.ts          # CRUD /jobs
+│   └── jobs.service.ts
+├── applications/
+│   ├── applications.controller.ts  # /applications endpoints
+│   └── applications.service.ts
+└── prisma/
+    └── prisma.service.ts           # Prisma 7 with adapter
+
+/backend/prisma/
+├── schema.prisma                   # Database models
+└── prisma.config.ts                # Prisma 7 config with DATABASE_URL
+
+================================================================================
+ENVIRONMENT VARIABLES
+================================================================================
+
+FRONTEND (.env.local):
+NEXT_PUBLIC_SUPABASE_URL=https://wqnhcogwvfpswngzbhee.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
+NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
+
+BACKEND (.env):
+PORT=4000
+NODE_ENV=development
+FRONTEND_URL=http://localhost:3000
+DATABASE_URL="postgresql://postgres:<password>@db.wqnhcogwvfpswngzbhee.supabase.co:5432/postgres"
+SUPABASE_PROJECT_URL=https://wqnhcogwvfpswngzbhee.supabase.co
+SUPABASE_JWT_SECRET=<legacy-jwt-secret>  # Not used with JWKS, but kept for reference
+
+================================================================================
+DATABASE SCHEMA (Prisma)
+================================================================================
+
+Models:
+- User (id, supabaseId, email, role)
+- StudentProfile (userId, firstName, lastName, resumeUrl)
+- CompanyProfile (userId, companyName, description, logoUrl)
+- Job (id, title, description, location, type, salary, companyId)
+- Application (id, status, studentId, jobId, coverLetter)
+
+Enums:
+- Role: STUDENT, COMPANY, ADMIN
+- JobType: INTERNSHIP, FULL_TIME, PART_TIME
+- ApplicationStatus: PENDING, REVIEWING, ACCEPTED, REJECTED
+
+================================================================================
+COMMON COMMANDS
+================================================================================
+
+# Start development servers
+cd frontend && npm run dev          # Port 3000
+cd backend && npm run start:dev     # Port 4000
+
+# Database
+cd backend && npx prisma migrate dev    # Run migrations
+cd backend && npx prisma studio         # Database GUI
+cd backend && npx prisma generate       # Regenerate client
+
+# Build
+cd frontend && npm run build
+cd backend && npm run build
+
+================================================================================
+KNOWN ISSUES / GOTCHAS
+================================================================================
+
+1. React hooks error if useEffect is placed after conditional return
+   - All hooks must be called before any return statements
+   - See: frontend/src/app/(dashboard)/layout.tsx
+
+2. Port conflicts
+   - Kill existing processes: pkill -f "next dev" or pkill -f "nest start"
+   - Or use: lsof -ti:3000 | xargs kill -9
+
+3. JWT verification fails with "Unauthorized"
+   - Supabase rotated to ECC keys
+   - Must use JWKS endpoint, not legacy shared secret
+   - If still failing, user needs to sign out and sign in again
+
+4. "User already exists" on register
+   - User exists in Supabase but not in backend DB
+   - Direct them to login, then complete-profile flow will trigger
+
+5. Prisma 7 breaking changes
+   - url removed from datasource block in schema.prisma
+   - Requires adapter pattern in PrismaService
+
+================================================================================
+NEXT STEPS (v0.2 Roadmap)
+================================================================================
+
+1. Test and fix job CRUD flow
+2. Test and fix application flow
+3. Add resume upload (Supabase Storage)
+4. Add job search and filters
+5. Add email notifications
+6. Style dashboard pages to match landing page theme
+7. Add form validation with React Hook Form + Zod
+8. Add loading states and error handling
+9. Deploy to Vercel (frontend) + Railway/Fly.io (backend)
+
+================================================================================
+CONTACT / RESOURCES
+================================================================================
+
+- Supabase Dashboard: https://supabase.com/dashboard/project/wqnhcogwvfpswngzbhee
+- Project Spec: /llm/environment_llm.txt
+- Dev Log: /llm/mvp_log.md
+- README: /README.md
+
+================================================================================

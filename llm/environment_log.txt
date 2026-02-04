@@ -1,0 +1,38 @@
+# gradWork Environment Setup Log
+## Date: 2026-02-03
+
+### Environment Verified
+- OS: Arch Linux (fish shell)
+- Node: v20.20.0 (via nvm.fish)
+- npm: 10.8.2
+- Docker: 29.2.0
+- Docker Compose: 5.0.2
+- Git: 2.53.0
+
+### Frontend (Next.js 14)
+- Created in /frontend
+- TypeScript + Tailwind CSS + App Router
+- Installed: @supabase/supabase-js, @tanstack/react-query, react-hook-form, zod
+- Build: ✓ SUCCESS
+
+### Backend (NestJS)
+- Created in /backend  
+- Port: 4000
+- Installed: Prisma, helmet, class-validator, passport-jwt, @supabase/supabase-js
+- Security: CORS + Helmet + ValidationPipe configured
+- Build: ✓ SUCCESS
+
+### Prisma Schema
+- Base models created: User, StudentProfile, CompanyProfile, Job, Application
+- Enums: Role, JobType, ApplicationStatus
+
+### Next Steps
+1. ~~Set up Supabase project & get credentials~~ ✓ DONE
+2. ~~Copy .env.example files and fill in values~~ ✓ DONE
+3. ~~Run `npx prisma migrate dev` after DB configured~~ ✓ DONE
+4. ~~`npm run start:dev` in each folder to run~~ ✓ RUNNING
+
+### Servers Running
+- Frontend: http://localhost:3000
+- Backend: http://localhost:4000
+- Database: Supabase wqnhcogwvfpswngzbhee
