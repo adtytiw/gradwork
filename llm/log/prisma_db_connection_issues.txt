@@ -1,0 +1,215 @@
+================================================================================
+PRISMA DATABASE CONNECTION ISSUES - TROUBLESHOOTING LOG
+Date: 4 February 2026
+================================================================================
+
+REPORTED ISSUES:
+----------------
+1. Prisma Client: "no request" / request issues
+2. prisma db pull: "Can't reach database server"
+
+================================================================================
+ISSUE 1: PRISMA CLIENT "NO REQUEST" ERROR
+================================================================================
+
+POSSIBLE CAUSES:
+- Prisma Client not generated or outdated
+- Missing @prisma/client package
+- Incorrect import path
+
+SOLUTIONS TO TRY:
+
+Step 1: Regenerate Prisma Client
+--------------------------------
+npx prisma generate
+
+Step 2: If that fails, try reinstalling
+---------------------------------------
+npm uninstall @prisma/client
+npm install @prisma/client
+npx prisma generate
+
+Step 3: Check import statement
+------------------------------
+Make sure you're importing correctly:
+  import { PrismaClient } from '@prisma/client'
+  
+NOT:
+  import { PrismaClient } from 'prisma'
+
+Step 4: Clear node_modules and reinstall
+----------------------------------------
+rm -rf node_modules
+rm -rf package-lock.json (or yarn.lock)
+npm install
+npx prisma generate
+
+
+================================================================================
+ISSUE 2: PRISMA DB PULL - "CAN'T REACH DATABASE"
+================================================================================
+
+POSSIBLE CAUSES:
+- Database server not running
+- Incorrect DATABASE_URL in .env
+- Firewall/network blocking connection
+- Wrong port or host
+- SSL/TLS configuration issues
+- Database credentials incorrect
+
+SOLUTIONS TO TRY:
+
+Step 1: Verify .env file exists and has DATABASE_URL
+-----------------------------------------------------
+Check that backend/.env exists and contains:
+  DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public"
+
+Example for local PostgreSQL:
+  DATABASE_URL="postgresql://postgres:password@localhost:5432/gradwork?schema=public"
+
+Example for Supabase:
+  DATABASE_URL="postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:5432/postgres"
+
+
+Step 2: Test database connectivity
+----------------------------------
+# For PostgreSQL, try connecting directly:
+psql "postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
+
+# Or use pg_isready:
+pg_isready -h HOST -p PORT
+
+
+Step 3: Check if database server is running
+-------------------------------------------
+# For local PostgreSQL:
+sudo systemctl status postgresql
+# Or:
+pg_isready
+
+# For Docker:
+docker ps | grep postgres
+
+
+Step 4: Verify network/firewall
+-------------------------------
+# Test if port is accessible:
+nc -zv HOST PORT
+# Example:
+nc -zv localhost 5432
+
+# For remote databases, check firewall rules
+
+
+Step 5: SSL Connection Issues (common with cloud DBs)
+-----------------------------------------------------
+Try adding SSL parameters to DATABASE_URL:
+  DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public&sslmode=require"
+
+Or disable SSL for local development:
+  DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public&sslmode=disable"
+
+
+Step 6: Check credentials
+-------------------------
+- Verify username and password are correct
+- Check for special characters in password (URL-encode them)
+  @ -> %40
+  # -> %23
+  : -> %3A
+  / -> %2F
+
+
+Step 7: For Supabase specifically
+---------------------------------
+1. Go to Supabase Dashboard > Settings > Database
+2. Copy the "Connection string" (URI format)
+3. Replace [YOUR-PASSWORD] with your actual database password
+4. Make sure "Connection Pooling" settings match your URL
+
+
+Step 8: Docker networking issues
+--------------------------------
+If using Docker:
+- Use 'host.docker.internal' instead of 'localhost' on Mac/Windows
+- Use the container name if on same Docker network
+- Check docker-compose.yml for correct port mappings
+
+
+Step 9: Try direct connection (bypass pooling)
+----------------------------------------------
+If using Supabase with connection pooling, try the direct connection:
+  DATABASE_URL="postgresql://postgres:[PASSWORD]@db.[PROJECT].supabase.co:5432/postgres"
+
+Instead of pooled:
+  DATABASE_URL="postgresql://postgres:[PASSWORD]@[PROJECT].pooler.supabase.com:6543/postgres"
+
+
+================================================================================
+DEBUGGING COMMANDS
+================================================================================
+
+# Check Prisma version
+npx prisma --version
+
+# Validate schema
+npx prisma validate
+
+# Format schema
+npx prisma format
+
+# Check database connection with verbose output
+DEBUG="*" npx prisma db pull
+
+# View current database status
+npx prisma migrate status
+
+
+================================================================================
+COMMON ENVIRONMENT SETUP CHECKLIST
+================================================================================
+
+[ ] .env file exists in backend/ directory
+[ ] DATABASE_URL is properly formatted
+[ ] Database server is running
+[ ] Network allows connection to database host:port
+[ ] Credentials are correct
+[ ] @prisma/client is installed
+[ ] Prisma client is generated (npx prisma generate)
+[ ] No typos in the connection string
+
+
+================================================================================
+IF ALL ELSE FAILS
+================================================================================
+
+1. Start fresh:
+   cd backend
+   rm -rf node_modules
+   rm -rf .prisma
+   npm install
+   npx prisma generate
+
+2. Create a test connection script (test-db.js):
+   const { PrismaClient } = require('@prisma/client')
+   const prisma = new PrismaClient()
+   
+   async function main() {
+     try {
+       await prisma.$connect()
+       console.log('✅ Database connected successfully!')
+       const result = await prisma.$queryRaw`SELECT 1`
+       console.log('✅ Query executed:', result)
+     } catch (error) {
+       console.error('❌ Connection failed:', error.message)
+     } finally {
+       await prisma.$disconnect()
+     }
+   }
+   main()
+
+3. Run: node test-db.js
+
+4. Share the exact error message for more specific help!
+
+================================================================================
