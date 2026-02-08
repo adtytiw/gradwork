@@ -5,8 +5,19 @@ import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import { LoadingButton } from '@/components/ui/loading-button';
+import { Button } from '@/components/ui/button';
+import { FormInput } from '@/components/ui/form-input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type JobType = 'INTERNSHIP' | 'FULL_TIME' | 'PART_TIME';
 
@@ -40,68 +51,72 @@ export default function NewJobPage() {
     <div className="max-w-2xl">
       <h1 className="text-2xl font-bold mb-6">Post a New Job</h1>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 space-y-6">
-        {createMutation.isError && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-            {(createMutation.error as Error).message}
-          </div>
-        )}
+      <Card>
+        <CardHeader>
+          <CardTitle>Job Details</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {createMutation.isError && (
+              <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg text-sm">
+                {(createMutation.error as Error).message}
+              </div>
+            )}
 
-        <Input
-          id="title"
-          label="Job Title"
-          required
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="e.g. Software Engineering Intern"
-        />
+            <FormInput
+              id="title"
+              label="Job Title"
+              required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. Software Engineering Intern"
+            />
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Job Type
-          </label>
-          <select
-            value={type}
-            onChange={(e) => setType(e.target.value as JobType)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="INTERNSHIP">Internship</option>
-            <option value="FULL_TIME">Full-time</option>
-            <option value="PART_TIME">Part-time</option>
-          </select>
-        </div>
+            <div className="space-y-2">
+              <Label htmlFor="type">Job Type</Label>
+              <Select value={type} onValueChange={(value) => setType(value as JobType)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select job type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="INTERNSHIP">Internship</SelectItem>
+                  <SelectItem value="FULL_TIME">Full-time</SelectItem>
+                  <SelectItem value="PART_TIME">Part-time</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-        <Input
-          id="location"
-          label="Location (optional)"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          placeholder="e.g. New York, NY or Remote"
-        />
+            <FormInput
+              id="location"
+              label="Location (optional)"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="e.g. New York, NY or Remote"
+            />
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Job Description
-          </label>
-          <textarea
-            required
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={6}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Describe the role, responsibilities, requirements, etc."
-          />
-        </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">Job Description</Label>
+              <Textarea
+                id="description"
+                required
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={6}
+                placeholder="Describe the role, responsibilities, requirements, etc."
+              />
+            </div>
 
-        <div className="flex gap-4">
-          <Button type="submit" loading={createMutation.isPending}>
-            Post Job
-          </Button>
-          <Button type="button" variant="outline" onClick={() => router.back()}>
-            Cancel
-          </Button>
-        </div>
-      </form>
+            <div className="flex gap-4">
+              <LoadingButton type="submit" loading={createMutation.isPending}>
+                Post Job
+              </LoadingButton>
+              <Button type="button" variant="outline" onClick={() => router.back()}>
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

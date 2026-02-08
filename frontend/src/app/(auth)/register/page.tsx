@@ -5,6 +5,10 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { apiClient } from '@/lib/api';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 
 type Role = 'STUDENT' | 'COMPANY';
 type Step = 'form' | 'verify';
@@ -116,20 +120,22 @@ export default function RegisterPage() {
                 </div>
               )}
 
-              <button
+              <Button
                 onClick={resendEmail}
                 disabled={loading}
-                className="w-full py-3 px-4 text-zinc-400 hover:text-white border border-zinc-700 hover:border-zinc-600 rounded-xl transition-all duration-200 disabled:opacity-50"
+                variant="outline"
+                className="w-full py-3 border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-600"
               >
                 {loading ? 'Sending...' : 'Resend verification email'}
-              </button>
+              </Button>
 
-              <button
+              <Button
                 onClick={() => setStep('form')}
-                className="w-full py-3 px-4 text-zinc-500 hover:text-zinc-300 transition-colors"
+                variant="ghost"
+                className="w-full py-3 text-zinc-500 hover:text-zinc-300"
               >
                 ← Back to registration
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -173,9 +179,9 @@ export default function RegisterPage() {
 
             {/* Role Selection */}
             <div>
-              <label className="block text-sm font-medium text-zinc-300 mb-3">
+              <Label className="block text-sm font-medium text-zinc-300 mb-3">
                 I am a
-              </label>
+              </Label>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
@@ -208,11 +214,11 @@ export default function RegisterPage() {
 
             {/* Form Fields */}
             <div className="space-y-4">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-zinc-300 mb-2">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-zinc-300">
                   Email address
-                </label>
-                <input
+                </Label>
+                <Input
                   id="email"
                   type="email"
                   autoComplete="email"
@@ -220,15 +226,15 @@ export default function RegisterPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full px-4 py-3 bg-zinc-800/50 border border-zinc-700 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all"
+                  className="bg-zinc-800/50 border-zinc-700 text-white placeholder-zinc-500 focus-visible:ring-violet-500/50 focus-visible:border-violet-500"
                 />
               </div>
 
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-zinc-300 mb-2">
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-zinc-300">
                   Password
-                </label>
-                <input
+                </Label>
+                <Input
                   id="password"
                   type="password"
                   autoComplete="new-password"
@@ -237,78 +243,75 @@ export default function RegisterPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-4 py-3 bg-zinc-800/50 border border-zinc-700 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all"
+                  className="bg-zinc-800/50 border-zinc-700 text-white placeholder-zinc-500 focus-visible:ring-violet-500/50 focus-visible:border-violet-500"
                 />
               </div>
 
               {role === 'STUDENT' && (
                 <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label htmlFor="firstName" className="block text-sm font-medium text-zinc-300 mb-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName" className="text-zinc-300">
                       First name
-                    </label>
-                    <input
+                    </Label>
+                    <Input
                       id="firstName"
                       type="text"
                       required
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       placeholder="John"
-                      className="w-full px-4 py-3 bg-zinc-800/50 border border-zinc-700 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all"
+                      className="bg-zinc-800/50 border-zinc-700 text-white placeholder-zinc-500 focus-visible:ring-violet-500/50 focus-visible:border-violet-500"
                     />
                   </div>
-                  <div>
-                    <label htmlFor="lastName" className="block text-sm font-medium text-zinc-300 mb-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName" className="text-zinc-300">
                       Last name
-                    </label>
-                    <input
+                    </Label>
+                    <Input
                       id="lastName"
                       type="text"
                       required
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       placeholder="Doe"
-                      className="w-full px-4 py-3 bg-zinc-800/50 border border-zinc-700 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all"
+                      className="bg-zinc-800/50 border-zinc-700 text-white placeholder-zinc-500 focus-visible:ring-violet-500/50 focus-visible:border-violet-500"
                     />
                   </div>
                 </div>
               )}
 
               {role === 'COMPANY' && (
-                <div>
-                  <label htmlFor="companyName" className="block text-sm font-medium text-zinc-300 mb-2">
+                <div className="space-y-2">
+                  <Label htmlFor="companyName" className="text-zinc-300">
                     Company name
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     id="companyName"
                     type="text"
                     required
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
                     placeholder="Acme Inc."
-                    className="w-full px-4 py-3 bg-zinc-800/50 border border-zinc-700 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all"
+                    className="bg-zinc-800/50 border-zinc-700 text-white placeholder-zinc-500 focus-visible:ring-violet-500/50 focus-visible:border-violet-500"
                   />
                 </div>
               )}
             </div>
 
-            <button
+            <Button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-4 bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 text-white font-medium rounded-xl transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="w-full py-3 bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 text-white font-medium transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
+                  <Loader2 className="h-5 w-5 animate-spin" />
                   Creating account...
                 </span>
               ) : (
                 'Create account'
               )}
-            </button>
+            </Button>
           </form>
 
           <p className="mt-6 text-center text-xs text-zinc-500">
